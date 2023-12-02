@@ -6,6 +6,15 @@ export const getDepartements = (req, res) => {
   db.query('SELECT * FROM departement', (error, result) => {
     if (error) throw new Error(error);
 
+    if (result.length === 0) {
+      return response({
+        statusCode: 400,
+        message: 'Empty departement datas',
+        datas: null,
+        res,
+      });
+    }
+
     response({
       statusCode: 200,
       message: 'Success get departements',

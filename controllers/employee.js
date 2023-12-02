@@ -8,6 +8,15 @@ export const getEmployees = (req, res) => {
     (err, result) => {
       if (err) throw new Error(err);
 
+      if (result.length === 0) {
+        return response({
+          statusCode: 400,
+          message: 'Empty employee datas',
+          datas: null,
+          res,
+        });
+      }
+
       response({
         statusCode: 200,
         message: 'Success get employees',

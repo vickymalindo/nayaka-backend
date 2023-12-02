@@ -23,6 +23,22 @@ import {
 import { departementValidator } from '../validations/departement.js';
 import { employeeValidator } from '../validations/employee.js';
 import { positionValidator } from '../validations/position.js';
+import {
+  createSalary,
+  deleteSalary,
+  getSalaries,
+  getSalary,
+  updateSalary,
+} from '../controllers/salary.js';
+import { salaryValidator } from '../validations/salary.js';
+import {
+  createTraining,
+  deleteTraining,
+  getTraning,
+  getTranings,
+  udpateTraining,
+} from '../controllers/training.js';
+import { trainingValidator } from '../validations/training.js';
 
 const router = express.Router();
 
@@ -43,5 +59,17 @@ router.get('/position/:id', getPosition);
 router.post('/position', ...positionValidator(), createPosition);
 router.put('/position/:id', ...positionValidator(), updatePosition);
 router.delete('/position/:id', deletePosition);
+
+router.get('/salary', getSalaries);
+router.get('/salary/:id', getSalary);
+router.post('/salary', ...salaryValidator(), createSalary);
+router.put('/salary/:id', ...salaryValidator(), updateSalary);
+router.delete('/salary/:id', deleteSalary);
+
+router.get('/train', getTranings);
+router.get('/train/:id', getTraning);
+router.post('/train', ...trainingValidator(), createTraining);
+router.put('/train/:id', ...trainingValidator(), udpateTraining);
+router.delete('/train/:id', deleteTraining);
 
 export default router;

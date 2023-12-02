@@ -2,14 +2,14 @@ import { validationResult } from 'express-validator';
 import db from '../config/database.js';
 import response from '../utils/response.js';
 
-export const getPositions = (req, res) => {
-  db.query('SELECT * FROM position', (error, result) => {
+export const getSalaries = (req, res) => {
+  db.query('SELECT * FROM salary', (error, result) => {
     if (error) throw new Error(error);
 
     if (result.length === 0) {
       return response({
         statusCode: 400,
-        message: 'Empty position datas',
+        message: 'Empty salary datas',
         datas: null,
         res,
       });
@@ -17,108 +17,111 @@ export const getPositions = (req, res) => {
 
     response({
       statusCode: 200,
-      message: 'Success get positions',
+      message: 'Get salaries success',
       datas: result,
       res,
     });
   });
 };
 
-export const getPosition = (req, res) => {
+export const getSalary = (req, res) => {
   const { id } = req.params;
 
-  db.query(`SELECT * FROM position WHERE id = ${id}`, (error, result) => {
+  db.query(`SELECT * FROM salary WHERE id = ${id}`, (error, result) => {
     if (error) throw new Error(error);
 
     response({
       statusCode: 200,
-      message: 'Success get position',
+      message: 'Get salary success',
       datas: result,
       res,
     });
   });
 };
 
-export const createPosition = (req, res) => {
+export const createSalary = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.json(errors);
 
-  const { position_name } = req.body;
+  const { salary_range, annual_income, loans } = req.body;
 
-  const query = 'INSERT INTO position (position_name) VALUES (?)';
+  const query =
+    'INSERT INTO salary (salary_range, annual_income, loans) VALUES (?, ?, ?)';
 
-  const values = [position_name];
-
-  db.query(query, values, (error, result) => {
-    if (error) throw new Error(error);
-
-    if (result.affectedRows)
-      return response({
-        statusCode: 200,
-        message: 'Insert position success',
-        datas: values,
-        res,
-      });
-
-    return response({
-      statusCode: 400,
-      message: 'Insert position failed',
-      datas: null,
-      res,
-    });
-  });
-};
-
-export const updatePosition = (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.json(errors);
-
-  const { id } = req.params;
-
-  const { position_name } = req.body;
-
-  const query = `UPDATE position SET position_name = ? WHERE id = ${id}`;
-
-  const values = [position_name];
+  const values = [salary_range, annual_income, loans];
 
   db.query(query, values, (error, result) => {
-    if (error) throw new Error(error);
-
-    if (result.affectedRows)
-      return response({
-        statusCode: 200,
-        message: 'Update position success',
-        datas: values,
-        res,
-      });
-
-    return response({
-      statusCode: 400,
-      message: 'Update position failed',
-      datas: null,
-      res,
-    });
-  });
-};
-
-export const deletePosition = (req, res) => {
-  const { id } = req.params;
-
-  db.query(`DELETE FROM position WHERE id = ${id}`, (error, result) => {
     if (error) throw new Error(error);
 
     if (result.affectedRows) {
       return response({
         statusCode: 200,
-        message: 'Delete position success',
-        datas: null,
+        message: 'Insert salary success',
+        datas: values,
+        res,
+      });
+    }
+
+    return response({
+      statusCode: 200,
+      message: 'Insert salary failed',
+      datas: null,
+      res,
+    });
+  });
+};
+
+export const updateSalary = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.json(errors);
+
+  const { id } = req.params;
+
+  const { salary_range, annual_income, loans } = req.body;
+
+  const query = `UPDATE salary SET salary_range = ?, annual_income = ?, loans = ? WHERE id = ${id}`;
+
+  const values = [salary_range, annual_income, loans];
+
+  db.query(query, values, (error, result) => {
+    if (error) throw new Error(error);
+
+    if (result.affectedRows) {
+      return response({
+        statusCode: 200,
+        message: 'Update salary success',
+        datas: values,
         res,
       });
     }
 
     return response({
       statusCode: 400,
-      message: 'Delete position failed',
+      message: 'Update salary failed',
+      datas: null,
+      res,
+    });
+  });
+};
+
+export const deleteSalary = (req, res) => {
+  const { id } = req.params;
+
+  db.query(`DELETE FROM salary WHERE id = ${id}`, (error, result) => {
+    if (error) throw new Error(error);
+
+    if (result.affectedRows) {
+      return response({
+        statusCode: 200,
+        message: 'Delete salary success',
+        datas: null,
+        res,
+      });
+    }
+
+    return response({
+      statusCode: 200,
+      message: 'Delete salary failed',
       datas: null,
       res,
     });
