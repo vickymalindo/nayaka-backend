@@ -31,12 +31,46 @@ export const getEmployee = (req, res) => {
   const { id } = req.params;
 
   db.query(
-    `SELECT employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, departement.departement_name, position.position_name FROM employee INNER JOIN departement ON employee.dept_id = departement.id INNER JOIN position ON employee.post_id = position.id WHERE employee.id = ${id}`,
+    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, departement.departement_name, position.position_name FROM employee INNER JOIN departement ON employee.dept_id = departement.id INNER JOIN position ON employee.post_id = position.id WHERE employee.id = ${id}`,
     (err, result) => {
       if (err) throw new Error(err);
       response({
         statusCode: 200,
         message: 'Success get employee',
+        datas: result,
+        res,
+      });
+    }
+  );
+};
+
+export const getEmployeeSalary = (req, res) => {
+  const { id } = req.params;
+
+  db.query(
+    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, salary.annual_income, salary.loans, (salary.annual_income - salary.loans) AS salary_per_person FROM employee INNER JOIN salary ON employee.id = salary.id WHERE employee.id = ${id}`,
+    (error, result) => {
+      if (error) throw new Error(err);
+      response({
+        statusCode: 200,
+        message: 'Success get employee salary',
+        datas: result,
+        res,
+      });
+    }
+  );
+};
+
+export const getEmployeeTraining = (req, res) => {
+  const { id } = req.params;
+
+  db.query(
+    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, training.skills, training.trainer, training.project FROM employee INNER JOIN training ON employee.id = training.id WHERE employee.id = ${id}`,
+    (error, result) => {
+      if (error) throw new Error(err);
+      response({
+        statusCode: 200,
+        message: 'Success get employee training',
         datas: result,
         res,
       });

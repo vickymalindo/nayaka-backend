@@ -47,25 +47,19 @@ export const createPosition = (req, res) => {
 
   const query = 'INSERT INTO position (position_name) VALUES (?)';
 
-  const values = [position_name];
+  const value = [position_name];
 
-  db.query(query, values, (error, result) => {
+  db.query(query, value, (error, result) => {
     if (error) throw new Error(error);
 
-    if (result.affectedRows)
+    if (result.affectedRows) {
       return response({
         statusCode: 200,
         message: 'Insert position success',
-        datas: values,
+        datas: value,
         res,
       });
-
-    return response({
-      statusCode: 400,
-      message: 'Insert position failed',
-      datas: null,
-      res,
-    });
+    }
   });
 };
 
