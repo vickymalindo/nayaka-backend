@@ -48,7 +48,7 @@ export const getEmployeeSalary = (req, res) => {
   const { id } = req.params;
 
   db.query(
-    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, salary.annual_income, salary.loans, (salary.annual_income - salary.loans) AS salary_per_person FROM employee INNER JOIN salary ON employee.id = salary.id WHERE employee.id = ${id}`,
+    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, salary.annual_income, salary.loans, (salary.annual_income - salary.loans) AS salary_per_person FROM employee INNER JOIN salary ON employee.id = salary.employee_id WHERE employee.id = ${id}`,
     (error, result) => {
       if (error) throw new Error(err);
       response({
@@ -65,7 +65,7 @@ export const getEmployeeTraining = (req, res) => {
   const { id } = req.params;
 
   db.query(
-    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, training.skills, training.trainer, training.project FROM employee INNER JOIN training ON employee.id = training.id WHERE employee.id = ${id}`,
+    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, training.skills, training.trainer, training.project FROM employee INNER JOIN training ON employee.id = training.employee_id WHERE employee.id = ${id}`,
     (error, result) => {
       if (error) throw new Error(err);
       response({
@@ -93,12 +93,17 @@ export const createEmployee = (req, res) => {
     employed_date,
     dept_id,
     post_id,
+    salary_range,
+    annual_income,
+    loans,
   } = req.body;
 
-  const query =
+  const queryEmp =
     'INSERT INTO employee (firstname, middlename, lastname, birthdate, age, sex, address, employed_date, dept_id, post_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-  const values = [
+  const querySalary = `INSERT INTO salary (salary_range, annual_income, loans, employee_id) VALUES (?, ?, ?, ?)`;
+
+  const valuesEmp = [
     firstname,
     middlename,
     lastname,
@@ -111,22 +116,38 @@ export const createEmployee = (req, res) => {
     post_id,
   ];
 
-  db.query(query, values, (error, result) => {
-    if (error) throw new Error(error);
+  db.query(queryEmp, valuesEmp, (errorEmp, resultEmp) => {
+    if (errorEmp) throw new Error(errorEmp);
+    const { insertId } = resultEmp;
+    const valuesSalary = [salary_range, annual_income, loans, insertId];
 
-    if (result.affectedRows)
+    if (!resultEmp.affectedRows) {
+      return response({
+        statusCode: 400,
+        message: 'Insert employee failed',
+        datas: null,
+        res,
+      });
+    }
+
+    db.query(querySalary, valuesSalary, (errorSalary, resultSalary) => {
+      if (errorSalary) throw new Error(errorSalary);
+
+      if (!resultSalary.affectedRows) {
+        return response({
+          statusCode: 400,
+          message: 'Insert salary failed',
+          datas: null,
+          res,
+        });
+      }
+
       return response({
         statusCode: 200,
         message: 'Insert employee success',
-        datas: result.insertId,
+        datas: req.body,
         res,
       });
-
-    return response({
-      statusCode: 400,
-      message: 'Insert employee failed',
-      datas: null,
-      res,
     });
   });
 };
