@@ -175,11 +175,16 @@ export const updateEmployee = (req, res) => {
     employed_date,
     dept_id,
     post_id,
+    salary_range,
+    annual_income,
+    loans,
   } = req.body;
 
-  const query = `UPDATE employee SET firstname = ?, middlename = ?, lastname = ?, birthdate = ?, age = ?, sex = ?, address = ?, employed_date = ?, dept_id = ?, post_id = ? WHERE id = ${id}`;
+  const queryEmp = `UPDATE employee SET firstname = ?, middlename = ?, lastname = ?, birthdate = ?, age = ?, sex = ?, address = ?, employed_date = ?, dept_id = ?, post_id = ? WHERE id = ${id}`;
 
-  const values = [
+  const querySalary = `UPDATE salary SET salary_range = ?, annual_income = ?, loans = ? WHERE employee_id = ${id}`;
+
+  const valuesEmp = [
     firstname,
     middlename,
     lastname,
@@ -192,23 +197,38 @@ export const updateEmployee = (req, res) => {
     post_id,
   ];
 
-  db.query(query, values, (error, result) => {
-    if (error) throw new Error(error);
+  const valuesSalary = [salary_range, annual_income, loans];
 
-    if (result.affectedRows) {
+  db.query(queryEmp, valuesEmp, (errorEmp, resultEmp) => {
+    if (errorEmp) throw new Error(errorEmp);
+
+    if (!resultEmp.affectedRows) {
       return response({
-        statusCode: 200,
-        message: 'Update employee success',
-        datas: values,
+        statusCode: 400,
+        message: 'Update employee failed',
+        datas: null,
         res,
       });
     }
 
-    return response({
-      statusCode: 400,
-      message: 'Update employee failed',
-      datas: null,
-      res,
+    db.query(querySalary, valuesSalary, (errorSalary, resultSalary) => {
+      if (errorSalary) throw new Error(errorSalary);
+
+      if (!resultSalary.affectedRows) {
+        return response({
+          statusCode: 400,
+          message: 'Update salary failed',
+          datas: null,
+          res,
+        });
+      }
+
+      return response({
+        statusCode: 200,
+        message: 'Update employee success',
+        datas: req.body,
+        res,
+      });
     });
   });
 };
