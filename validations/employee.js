@@ -41,5 +41,8 @@ export const employeeValidator = () => {
       .isEmpty()
       .isInt()
       .withMessage('loans is required or must be number'),
+    check('skills').not().isEmpty().withMessage('skills is required'),
+    check('trainer').not().isEmpty().withMessage('trainer is required'),
+    check('project').not().isEmpty().withMessage('project is required'),
   ];
 };

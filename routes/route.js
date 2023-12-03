@@ -10,6 +10,7 @@ import {
   createEmployee,
   deleteEmployee,
   getEmployee,
+  getEmployeeNotInTraining,
   getEmployeeSalary,
   getEmployeeTraining,
   getEmployees,
@@ -51,6 +52,7 @@ router.put('/employee/:id', ...employeeValidator(), updateEmployee);
 router.delete('/employee/:id', deleteEmployee);
 router.get('/employee/salary/:id', getEmployeeSalary);
 router.get('/employee/train/:id', getEmployeeTraining);
+router.get('/employee/train', getEmployeeNotInTraining);
 
 router.get('/departement', getDepartements);
 router.get('/departement/:id', getDepartement);

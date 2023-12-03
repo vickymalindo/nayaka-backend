@@ -28,9 +28,10 @@ export const getEmployee = (req, res) => {
   const { id } = req.params;
 
   db.query(
-    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, departement.departement_name, position.position_name, salary.salary_range, salary.annual_income, salary.loans FROM employee INNER JOIN departement ON employee.dept_id = departement.id INNER JOIN position ON employee.post_id = position.id INNER JOIN salary ON employee.id = salary.employee_id WHERE employee.id = ${id}`,
+    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, departement.departement_name, position.position_name, salary.salary_range, salary.annual_income, salary.loans, training.skills, training.trainer, training.project FROM employee INNER JOIN departement ON employee.dept_id = departement.id INNER JOIN position ON employee.post_id = position.id INNER JOIN salary ON employee.id = salary.employee_id INNER JOIN training ON employee.id = training.employee_id WHERE employee.id = ${id}`,
     (err, result) => {
       if (err) throw new Error(err);
+
       if (result.length) {
         return response({
           statusCode: 200,
@@ -39,13 +40,13 @@ export const getEmployee = (req, res) => {
           res,
         });
       }
+
       return response({
         statusCode: 400,
         message: 'Failed get employee',
         datas: null,
         res,
       });
-      console.log(result.length);
     }
   );
 };
@@ -102,12 +103,17 @@ export const createEmployee = (req, res) => {
     salary_range,
     annual_income,
     loans,
+    skills,
+    trainer,
+    project,
   } = req.body;
 
   const queryEmp =
     'INSERT INTO employee (firstname, middlename, lastname, birthdate, age, sex, address, employed_date, dept_id, post_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   const querySalary = `INSERT INTO salary (salary_range, annual_income, loans, employee_id) VALUES (?, ?, ?, ?)`;
+
+  const queryTraining = `INSERT INTO training (skills, trainer, project, employee_id) VALUES (?, ?, ?, ?)`;
 
   const valuesEmp = [
     firstname,
@@ -126,6 +132,7 @@ export const createEmployee = (req, res) => {
     if (errorEmp) throw new Error(errorEmp);
     const { insertId } = resultEmp;
     const valuesSalary = [salary_range, annual_income, loans, insertId];
+    const valuesTraining = [skills, trainer, project, insertId];
 
     if (!resultEmp.affectedRows) {
       return response({
@@ -140,6 +147,19 @@ export const createEmployee = (req, res) => {
       if (errorSalary) throw new Error(errorSalary);
 
       if (!resultSalary.affectedRows) {
+        return response({
+          statusCode: 400,
+          message: 'Insert salary failed',
+          datas: null,
+          res,
+        });
+      }
+    });
+
+    db.query(queryTraining, valuesTraining, (errorTrain, resultTrain) => {
+      if (errorTrain) throw new Error(errorTrain);
+
+      if (!resultTrain.affectedRows) {
         return response({
           statusCode: 400,
           message: 'Insert salary failed',
@@ -178,11 +198,16 @@ export const updateEmployee = (req, res) => {
     salary_range,
     annual_income,
     loans,
+    skills,
+    trainer,
+    project,
   } = req.body;
 
   const queryEmp = `UPDATE employee SET firstname = ?, middlename = ?, lastname = ?, birthdate = ?, age = ?, sex = ?, address = ?, employed_date = ?, dept_id = ?, post_id = ? WHERE id = ${id}`;
 
   const querySalary = `UPDATE salary SET salary_range = ?, annual_income = ?, loans = ? WHERE employee_id = ${id}`;
+
+  const queryTraining = `UPDATE training SET skills = ?, trainer = ?, project = ? WHERE employee_id = ${id}`;
 
   const valuesEmp = [
     firstname,
@@ -198,6 +223,8 @@ export const updateEmployee = (req, res) => {
   ];
 
   const valuesSalary = [salary_range, annual_income, loans];
+
+  const valuesTraining = [skills, trainer, project];
 
   db.query(queryEmp, valuesEmp, (errorEmp, resultEmp) => {
     if (errorEmp) throw new Error(errorEmp);
@@ -218,6 +245,19 @@ export const updateEmployee = (req, res) => {
         return response({
           statusCode: 400,
           message: 'Update salary failed',
+          datas: null,
+          res,
+        });
+      }
+    });
+
+    db.query(queryTraining, valuesTraining, (errorTrain, resultTrain) => {
+      if (errorTrain) throw new Error(errorTrain);
+
+      if (!resultTrain.affectedRows) {
+        return response({
+          statusCode: 400,
+          message: 'Update employed failed',
           datas: null,
           res,
         });
@@ -255,4 +295,20 @@ export const deleteEmployee = (req, res) => {
       res,
     });
   });
+};
+
+export const getEmployeeNotInTraining = (req, res) => {
+  db.query(
+    `SELECT id, CONCAT(firstname,' ', middlename,' ', lastname) AS fullname FROM employee WHERE id NOT IN (SELECT employee_id FROM training)`,
+    (error, result) => {
+      if (error) throw new Error(error);
+
+      return response({
+        statusCode: 200,
+        message: 'Delete employee success',
+        datas: result,
+        res,
+      });
+    }
+  );
 };
