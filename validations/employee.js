@@ -27,5 +27,22 @@ export const employeeValidator = () => {
       .isEmpty()
       .isInt()
       .withMessage('post_id is required or must be number'),
+    check('salary_range')
+      .not()
+      .isEmpty()
+      .withMessage('salary_range is required'),
+    check('annual_income')
+      .not()
+      .isEmpty()
+      .isInt()
+      .withMessage('annual_income is required or must be number'),
+    check('loans')
+      .not()
+      .isEmpty()
+      .isInt()
+      .withMessage('loans is required or must be number'),
+    check('skills').not().isEmpty().withMessage('skills is required'),
+    check('trainer').not().isEmpty().withMessage('trainer is required'),
+    check('project').not().isEmpty().withMessage('project is required'),
   ];
 };
