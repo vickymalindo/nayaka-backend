@@ -3,43 +3,49 @@ import db from '../config/database.js';
 import response from './../utils/response.js';
 
 export const getEmployees = (req, res) => {
-  db.query(
-    `SELECT employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, departement.departement_name, position.position_name FROM employee INNER JOIN departement ON employee.dept_id = departement.id INNER JOIN position ON employee.post_id = position.id`,
-    (err, result) => {
-      if (err) throw new Error(err);
+  db.query(`SELECT * FROM employee`, (err, result) => {
+    if (err) throw new Error(err);
 
-      if (result.length === 0) {
-        return response({
-          statusCode: 400,
-          message: 'Empty employee datas',
-          datas: null,
-          res,
-        });
-      }
-
-      response({
-        statusCode: 200,
-        message: 'Success get employees',
-        datas: result,
+    if (result.length === 0) {
+      return response({
+        statusCode: 400,
+        message: 'Empty employee datas',
+        datas: null,
         res,
       });
     }
-  );
+
+    response({
+      statusCode: 200,
+      message: 'Success get employees',
+      datas: result,
+      res,
+    });
+  });
 };
 
 export const getEmployee = (req, res) => {
   const { id } = req.params;
 
   db.query(
-    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, departement.departement_name, position.position_name FROM employee INNER JOIN departement ON employee.dept_id = departement.id INNER JOIN position ON employee.post_id = position.id WHERE employee.id = ${id}`,
+    `SELECT employee.id, employee.firstname, employee.middlename, employee.lastname, employee.birthdate, employee.age, employee.sex, employee.address, employee.employed_date, departement.departement_name, position.position_name, salary.salary_range, salary.annual_income, salary.loans FROM employee INNER JOIN departement ON employee.dept_id = departement.id INNER JOIN position ON employee.post_id = position.id INNER JOIN salary ON employee.id = salary.employee_id WHERE employee.id = ${id}`,
     (err, result) => {
       if (err) throw new Error(err);
-      response({
-        statusCode: 200,
-        message: 'Success get employee',
-        datas: result,
+      if (result.length) {
+        return response({
+          statusCode: 200,
+          message: 'Success get employee',
+          datas: result,
+          res,
+        });
+      }
+      return response({
+        statusCode: 400,
+        message: 'Failed get employee',
+        datas: null,
         res,
       });
+      console.log(result.length);
     }
   );
 };
