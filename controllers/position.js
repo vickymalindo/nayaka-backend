@@ -56,10 +56,16 @@ export const createPosition = (req, res) => {
       return response({
         statusCode: 200,
         message: 'Insert position success',
-        datas: value,
+        datas: req.body,
         res,
       });
     }
+    return response({
+      statusCode: 400,
+      message: 'Insert position failed',
+      datas: null,
+      res,
+    });
   });
 };
 
