@@ -16,6 +16,7 @@ import {
   getEmployees,
   updateEmployee,
 } from '../controllers/employee.js';
+import { getKaryawan } from '../controllers/karyawan.js';
 import {
   createPosition,
   deletePosition,
@@ -23,9 +24,6 @@ import {
   getPositions,
   updatePosition,
 } from '../controllers/position.js';
-import { departementValidator } from '../validations/departement.js';
-import { employeeValidator } from '../validations/employee.js';
-import { positionValidator } from '../validations/position.js';
 import {
   createSalary,
   deleteSalary,
@@ -33,7 +31,6 @@ import {
   getSalary,
   updateSalary,
 } from '../controllers/salary.js';
-import { salaryValidator } from '../validations/salary.js';
 import {
   createTraining,
   deleteTraining,
@@ -41,6 +38,10 @@ import {
   getTranings,
   udpateTraining,
 } from '../controllers/training.js';
+import { departementValidator } from '../validations/departement.js';
+import { employeeValidator } from '../validations/employee.js';
+import { positionValidator } from '../validations/position.js';
+import { salaryValidator } from '../validations/salary.js';
 import { trainingValidator } from '../validations/training.js';
 
 const router = express.Router();
@@ -77,5 +78,7 @@ router.get('/train/:id', getTraning);
 router.post('/train', ...trainingValidator(), createTraining);
 router.put('/train/:id', ...trainingValidator(), udpateTraining);
 router.delete('/train/:id', deleteTraining);
+
+router.get('/karyawan', getKaryawan);
 
 export default router;
